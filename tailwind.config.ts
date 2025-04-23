@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,14 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// Custom colors for imFuyo
+				imfuyo: {
+					green: '#4CAF50',
+					brown: '#795548',
+					blue: '#2196F3',
+					lightGreen: '#8BC34A',
+					beige: '#F5F5DC',
 				}
 			},
 			borderRadius: {
