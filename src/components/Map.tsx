@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef } from 'react';
 import 'ol/ol.css';
 import Map from 'ol/Map';
@@ -39,7 +38,7 @@ const LivestockMap = ({ locations, onSelectLocation }: MapProps) => {
       source: vectorSource,
     });
 
-    // Initialize map
+    // Initialize map centered on Centane, Eastern Cape
     const map = new Map({
       target: mapElement.current,
       layers: [
@@ -49,45 +48,45 @@ const LivestockMap = ({ locations, onSelectLocation }: MapProps) => {
         vectorLayer,
       ],
       view: new View({
-        center: fromLonLat([27.8333, -32.8833]), // Eastern Cape, South Africa
-        zoom: 8,
+        center: fromLonLat([28.3235, -32.5046]), // Centane, Eastern Cape coordinates
+        zoom: 12, // Closer zoom to see the area better
       }),
     });
 
     mapRef.current = map;
 
-    // Add markers for livestock locations
-    locations.forEach((location) => {
-      const feature = new Feature({
-        geometry: new Point(fromLonLat([location.longitude, location.latitude])),
-        id: location.id,
-      });
+    // Filter and add markers only for livestock that are not "outside"
+    locations
+      .filter(location => location.status !== 'outside')
+      .forEach((location) => {
+        const feature = new Feature({
+          geometry: new Point(fromLonLat([location.longitude, location.latitude])),
+          id: location.id,
+        });
 
-      // Style based on animal type and status
-      const color = location.type === 'cow' 
-        ? '#795548' 
-        : location.type === 'sheep' 
-          ? '#9e9e9e' 
-          : '#8BC34A';
+        // Style based on animal type and status
+        const color = location.type === 'cow' 
+          ? '#795548' 
+          : location.type === 'sheep' 
+            ? '#9e9e9e' 
+            : '#8BC34A';
 
-      const style = new Style({
-        image: new Circle({
-          radius: 8,
-          fill: new Fill({ color }),
-          stroke: new Stroke({
-            color: location.status === 'alert' 
-              ? '#ff4444' 
-              : location.status === 'outside' 
-                ? '#ff9800' 
+        const style = new Style({
+          image: new Circle({
+            radius: 8,
+            fill: new Fill({ color }),
+            stroke: new Stroke({
+              color: location.status === 'alert' 
+                ? '#ff4444' 
                 : '#ffffff',
-            width: location.status !== 'normal' ? 2 : 1,
+              width: location.status === 'alert' ? 2 : 1,
+            }),
           }),
-        }),
-      });
+        });
 
-      feature.setStyle(style);
-      vectorSource.addFeature(feature);
-    });
+        feature.setStyle(style);
+        vectorSource.addFeature(feature);
+      });
 
     // Handle click events
     map.on('click', (event) => {
