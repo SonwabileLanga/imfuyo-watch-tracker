@@ -96,8 +96,10 @@ const LivestockMap = ({ locations, onSelectLocation }: MapProps) => {
         const id = feature.get('id');
         if (id && onSelectLocation) {
           onSelectLocation(id);
+          // Fix for error #1: Check the geometry type and cast it correctly
           const geometry = feature.getGeometry();
-          if (geometry && geometry.getType() === 'Point') {
+          if (geometry && geometry instanceof Point) {
+            // Now TypeScript knows this is specifically a Point geometry
             const coordinates = geometry.getCoordinates();
             map.getView().animate({
               center: coordinates,
@@ -113,7 +115,11 @@ const LivestockMap = ({ locations, onSelectLocation }: MapProps) => {
     map.on('pointermove', (event) => {
       const pixel = map.getEventPixel(event.originalEvent);
       const hit = map.hasFeatureAtPixel(pixel);
-      map.getTarget().style.cursor = hit ? 'pointer' : '';
+      // Fix for error #2: Check that map.getTarget() returns an HTMLElement
+      const target = map.getTarget();
+      if (target && typeof target !== 'string') {
+        target.style.cursor = hit ? 'pointer' : '';
+      }
     });
 
     return () => {
